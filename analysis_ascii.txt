@@ -1,0 +1,113 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 85.0.0 (93.0.0 available)
+  _flutterfire_internals 1.3.64 (1.3.65 available)
+  analyzer 7.7.1 (10.0.0 available)
+  characters 1.4.0 (1.4.1 available)
+  cloud_firestore 6.1.0 (6.1.1 available)
+  cloud_firestore_platform_interface 7.0.4 (7.0.5 available)
+  cloud_firestore_web 5.1.0 (5.1.1 available)
+  cross_file 0.3.5 (0.3.5+1 available)
+  ffi 2.1.4 (2.1.5 available)
+  file_selector_linux 0.9.3+2 (0.9.4 available)
+  file_selector_macos 0.9.4+5 (0.9.5 available)
+  file_selector_platform_interface 2.6.2 (2.7.0 available)
+  file_selector_windows 0.9.3+4 (0.9.3+5 available)
+  firebase_auth 6.1.2 (6.1.3 available)
+  firebase_auth_platform_interface 8.1.4 (8.1.5 available)
+  firebase_auth_web 6.1.0 (6.1.1 available)
+  firebase_core 4.2.1 (4.3.0 available)
+  firebase_core_web 3.3.0 (3.3.1 available)
+  firebase_messaging 16.0.4 (16.1.0 available)
+  firebase_messaging_platform_interface 4.7.4 (4.7.5 available)
+  firebase_messaging_web 4.1.0 (4.1.1 available)
+  firebase_storage 13.0.4 (13.0.5 available)
+  firebase_storage_platform_interface 5.2.15 (5.2.16 available)
+  firebase_storage_web 3.11.0 (3.11.1 available)
+  flutter_lints 5.0.0 (6.0.0 available)
+  flutter_plugin_android_lifecycle 2.0.32 (2.0.33 available)
+  flutter_riverpod 3.0.3 (3.1.0 available)
+  geolocator_linux 0.2.3 (0.2.4 available)
+  google_maps_flutter_android 2.18.4 (2.18.6 available)
+  google_maps_flutter_ios 2.15.5 (2.16.0 available)
+  google_maps_flutter_platform_interface 2.14.0 (2.14.1 available)
+  google_sign_in 6.3.0 (7.2.0 available)
+  google_sign_in_android 6.2.1 (7.2.7 available)
+  google_sign_in_ios 5.9.0 (6.2.4 available)
+  google_sign_in_platform_interface 2.5.0 (3.1.0 available)
+  google_sign_in_web 0.12.4+4 (1.1.0 available)
+  http 1.5.0 (1.6.0 available)
+  image_picker 1.2.0 (1.2.1 available)
+  image_picker_android 0.8.13+7 (0.8.13+10 available)
+  image_picker_for_web 3.1.0 (3.1.1 available)
+  image_picker_ios 0.8.13+1 (0.8.13+3 available)
+  lints 5.1.1 (6.0.0 available)
+  matcher 0.12.17 (0.12.18 available)
+  material_color_utilities 0.11.1 (0.13.0 available)
+  meta 1.16.0 (1.17.0 available)
+  package_info_plus 8.3.1 (9.0.0 available)
+  rive 0.13.20 (0.14.0 available)
+  riverpod 3.0.3 (3.1.0 available)
+  test 1.26.2 (1.29.0 available)
+  test_api 0.7.6 (0.7.9 available)
+  test_core 0.6.11 (0.6.15 available)
+  watcher 1.1.4 (1.2.1 available)
+Got dependencies!
+52 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+Analyzing Rental_App-main...                                    
+
+warning - Unused import: 'package:firebase_auth/firebase_auth.dart' - lib\core\providers\items_provider.dart:3:8 - unused_import
+warning - Unused import: 'package:geolocator/geolocator.dart' - lib\core\providers\items_provider.dart:4:8 - unused_import
+   info - Don't invoke 'print' in production code - lib\core\repositories\order_repository.dart:10:5 - avoid_print
+   info - Don't invoke 'print' in production code - lib\core\repositories\order_repository.dart:16:7 - avoid_print
+   info - Don't invoke 'print' in production code - lib\core\repositories\order_repository.dart:18:9 - avoid_print
+   info - Don't invoke 'print' in production code - lib\core\repositories\order_repository.dart:22:7 - avoid_print
+warning - The value of the field '_auth' isn't used - lib\core\services\firestore_service.dart:8:22 - unused_field
+   info - Don't invoke 'print' in production code - lib\core\services\firestore_service.dart:90:7 - avoid_print
+   info - 'desiredAccuracy' is deprecated and shouldn't be used. use settings parameter with AndroidSettings, AppleSettings, WebSettings, or LocationSettings - lib\core\services\location_service.dart:31:9 - deprecated_member_use
+   info - Use 'rethrow' to rethrow a caught exception - lib\core\services\storage_service.dart:22:7 - use_rethrow_when_possible
+   info - 'background' is deprecated and shouldn't be used. Use surface instead. This feature was deprecated after v3.18.0-0.1.pre - lib\core\theme\app_theme.dart:14:7 - deprecated_member_use
+   info - 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre - lib\core\theme\app_theme.dart:46:23 - deprecated_member_use
+   info - 'MaterialStateProperty' is deprecated and shouldn't be used. Use WidgetStateProperty instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre - lib\core\theme\app_theme.dart:49:18 - deprecated_member_use
+   info - 'MaterialState' is deprecated and shouldn't be used. Use WidgetState instead. Moved to the Widgets layer to make code available outside of Material. This feature was deprecated after v3.19.0-0.3.pre - lib\core\theme\app_theme.dart:50:29 - deprecated_member_use
+warning - Unused import: '../../../../core/providers/location_provider.dart' - lib\features\add_listing\presentation\screens\add_listing_screen.dart:7:8 - unused_import
+   info - The import of 'package:flutter/foundation.dart' is unnecessary because all of the used elements are also provided by the import of 'package:flutter/material.dart' - lib\features\add_listing\presentation\screens\add_listing_screen.dart:11:8 - unnecessary_import
+   info - The private field _selectedImages could be 'final' - lib\features\add_listing\presentation\screens\add_listing_screen.dart:37:15 - prefer_final_fields
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\add_listing\presentation\screens\add_listing_screen.dart:252:69 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\add_listing\presentation\screens\add_listing_screen.dart:253:71 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\features\add_listing\presentation\screens\add_listing_screen.dart:376:23 - deprecated_member_use
+   info - 'value' is deprecated and shouldn't be used. Use initialValue instead. This will set the initial value for the form field. This feature was deprecated after v3.33.0-1.0.pre - lib\features\add_listing\presentation\screens\add_listing_screen.dart:472:31 - deprecated_member_use
+warning - Unused import: '../../../../core/services/firestore_service.dart' - lib\features\auth\presentation\screens\auth_screen.dart:5:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\auth\presentation\screens\auth_screen.dart:65:47 - deprecated_member_use
+warning - Unused import: 'package:cloud_firestore/cloud_firestore.dart' - lib\features\booking\presentation\booking_screen.dart:2:8 - unused_import
+warning - Unused import: 'dart:math' - lib\features\home\presentation\screens\home_screen.dart:4:8 - unused_import
+   info - 'scale' is deprecated and shouldn't be used. Use scaleByVector3, scaleByVector4, or scaleByDouble instead - lib\features\home\presentation\screens\home_screen.dart:291:15 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:310:30 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:328:27 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:346:53 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:573:43 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\home_screen.dart:579:50 - deprecated_member_use
+warning - Unused import: 'package:uuid/uuid.dart' - lib\features\home\presentation\screens\item_details_screen.dart:3:8 - unused_import
+warning - Unused import: 'package:intl/intl.dart' - lib\features\home\presentation\screens\item_details_screen.dart:4:8 - unused_import
+warning - Unused import: '../../../../core/models/order_model.dart' - lib\features\home\presentation\screens\item_details_screen.dart:6:8 - unused_import
+warning - Unused import: '../../../booking/presentation/payment_screen.dart' - lib\features\home\presentation\screens\item_details_screen.dart:8:8 - unused_import
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\home\presentation\screens\item_details_screen.dart:73:65 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\map\presentation\screens\map_screen.dart:128:45 - deprecated_member_use
+warning - The value of the local variable 'color' isn't used - lib\features\map\presentation\screens\map_screen.dart:202:11 - unused_local_variable
+warning - The value of the local variable 'icon' isn't used - lib\features\map\presentation\screens\map_screen.dart:203:14 - unused_local_variable
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\map\presentation\screens\map_screen.dart:215:32 - deprecated_member_use
+warning - Unused import: '../../../../core/models/item_model.dart' - lib\features\profile\presentation\screens\favorites_screen.dart:5:8 - unused_import
+warning - The operand can't be 'null', so the condition is always 'true' - lib\features\profile\presentation\screens\my_listings_screen.dart:77:49 - unnecessary_null_comparison
+warning - Dead code - lib\features\profile\presentation\screens\my_listings_screen.dart:79:22 - dead_code
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\payment_methods_screen.dart:34:55 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\payment_methods_screen.dart:141:24 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\payment_methods_screen.dart:170:47 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\payment_methods_screen.dart:173:33 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\profile_screen.dart:103:70 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\profile_screen.dart:343:19 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\profile\presentation\screens\profile_screen.dart:349:26 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\rentals\presentation\screens\rentals_screen.dart:140:32 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\rentals\presentation\screens\rentals_screen.dart:170:22 - deprecated_member_use
+   info - 'withOpacity' is deprecated and shouldn't be used. Use .withValues() to avoid precision loss - lib\features\rentals\presentation\screens\rentals_screen.dart:172:41 - deprecated_member_use
+

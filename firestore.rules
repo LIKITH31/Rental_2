@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ---------- Helper ----------
+    function isAdmin() {
+      return request.auth != null && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin" &&
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isActive == true;
+    }
+
+    // ---------- SALES ----------
+    match /sales/{saleId} {
+      // Buyer, seller, or admin can read sale
+      allow read: if request.auth != null && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.sellerId || isAdmin());
+      // Create sale (buyer only)
+      allow create: if request.auth != null && request.resource.data.buyerId == request.auth.uid && request.resource.data.itemId is string && request.resource.data.price is number; 
+      // Update sale (seller or admin)
+      allow update: if request.auth != null && (request.auth.uid == resource.data.sellerId || isAdmin());
+      // Optional: delete only by admin
+      allow delete: if isAdmin();
+    }
+
+    // ---------- USERS ----------
+    match /users/{userId} {
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow read, update: if request.auth != null && request.auth.uid == userId;
+      allow read, write: if isAdmin();
+    }
+
+    // ---------- ITEMS ----------
+    match /items/{itemId} {
+      // Anyone can read items (including location)
+      allow read: if true;
+      // Create item (owner only + location required)
+      allow create: if request.auth != null && request.resource.data.ownerId == request.auth.uid && request.resource.data.location.lat is number && request.resource.data.location.lng is number;
+      // Update/Delete item (owner or admin)
+      allow update, delete: if request.auth != null && (request.auth.uid == resource.data.ownerId || isAdmin());
+    }
+
+    // ---------- RENTALS ----------
+    match /rentals/{rentalId} {
+      // Only logged-in users
+      allow read: if request.auth != null;
+      // Create rental (only renter)
+      allow create: if request.auth != null && request.resource.data.renterId == request.auth.uid;
+      // Update rental (lender, renter, or admin)
+      allow update: if request.auth != null && (request.auth.uid == resource.data.renterId || request.auth.uid == resource.data.lenderId || isAdmin());
+    }
+  }
+}
