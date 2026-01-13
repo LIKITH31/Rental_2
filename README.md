@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🏠 Rental App - Rent & Resale Marketplace
 
 A modern Flutter-based rental and resale marketplace application with Firebase backend, real-time location-based item discovery, and beautiful 3D UI animations.
@@ -255,3 +256,7 @@ This project is licensed under the MIT License.
 ---
 
 **⭐ Star this repo if you find it helpful!**
+=======
+# rental_
+13-01
+>>>>>>> a7a3fde13c578f02be48dd5771bf71dc0879e773
