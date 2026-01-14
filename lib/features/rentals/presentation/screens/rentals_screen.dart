@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:intl/intl.dart';
+import '../../../../core/providers/items_provider.dart'; // For firestoreServiceProvider
 import '../providers/order_provider.dart';
 import '../../../../core/models/order_model.dart';
 import 'order_tracking_screen.dart';
@@ -71,7 +73,7 @@ class _RentalsScreenState extends ConsumerState<RentalsScreen> with SingleTicker
   Widget _buildRentalsList(List<OrderModel> allOrders, String tabCategory) {
     // Filter logic
     final rentals = allOrders.where((order) {
-      final s = order.status.toLowerCase();
+      final s = order.rentalStatus.toLowerCase();
       if (tabCategory == 'Pending') return s == 'requested';
       if (tabCategory == 'Active') return ['confirmed', 'picked up', 'in use'].contains(s);
       if (tabCategory == 'Completed') return ['returned', 'completed', 'cancelled'].contains(s);
@@ -108,7 +110,10 @@ class _RentalsScreenState extends ConsumerState<RentalsScreen> with SingleTicker
     // Helper to get color
     Color color;
     IconData icon;
-    switch (order.status.toLowerCase()) {
+    // Normalized status check
+    final status = order.rentalStatus.toLowerCase();
+    
+    switch (status) {
       case 'requested': color = Colors.orange; icon = Icons.pending; break;
       case 'confirmed': color = Colors.blue; icon = Icons.check_circle; break;
       case 'picked up': color = Colors.deepPurple; icon = Icons.delivery_dining; break;
@@ -117,50 +122,60 @@ class _RentalsScreenState extends ConsumerState<RentalsScreen> with SingleTicker
       default: color = Colors.grey; icon = Icons.info;
     }
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: () {
-          // Navigate to Tracking
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => OrderTrackingScreen(order: order)),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 60, height: 60,
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(icon, color: color, size: 30),
+    return FutureBuilder(
+      future: ref.read(firestoreServiceProvider).getItemById(order.itemId),
+      builder: (context, snapshot) {
+        final itemTitle = snapshot.data?.title ?? 'Unknown Item';
+        
+        return Card(
+          margin: const EdgeInsets.only(bottom: 16),
+          elevation: 2,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: InkWell(
+            onTap: () {
+              // Navigate to Tracking
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => OrderTrackingScreen(order: order)),
+              );
+            },
+            borderRadius: BorderRadius.circular(16),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Container(
+                    width: 60, height: 60,
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(icon, color: color, size: 30),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(itemTitle, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        const SizedBox(height: 4),
+                        Text(
+                          '${DateFormat("dd MMM").format(order.startDate)} - ${DateFormat("dd MMM").format(order.endDate)}',
+                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildStatusChip(order.rentalStatus, color),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
               ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(order.itemName, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    const SizedBox(height: 4),
-                    Text('${order.startDate} - ${order.endDate}', style: const TextStyle(color: Colors.grey, fontSize: 12)),
-                    const SizedBox(height: 8),
-                    _buildStatusChip(order.status, color),
-                  ],
-                ),
-              ),
-              const Icon(Icons.chevron_right),
-            ],
+            ),
           ),
-        ),
-      ),
-    ).animate().fadeIn(delay: (100 * index).ms).slideX(begin: -0.2);
+        ).animate().fadeIn(delay: (100 * index).ms).slideX(begin: -0.2);
+      }
+    );
   }
 
   Widget _buildStatusChip(String status, Color color) {

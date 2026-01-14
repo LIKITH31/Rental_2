@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../models/item_model.dart';
+import '../models/user_model.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore;
@@ -72,26 +73,60 @@ class FirestoreService {
     }
   }
 
+  // Get user profile as Model
+  Future<UserModel?> getUserModel(String userId) async {
+    try {
+      final doc = await _firestore.collection('users').doc(userId).get();
+      if (!doc.exists) return null;
+      return UserModel.fromFirestore(doc);
+    } catch (e) {
+      throw 'Failed to get user profile: $e';
+    }
+  }
+
+  // Get user profile stream
+  Stream<UserModel?> getUserStream(String userId) {
+    return _firestore.collection('users').doc(userId).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      return UserModel.fromFirestore(doc);
+    });
+  }
+
+  // Update Subscription
+  Future<void> updateSubscription(String userId, String tier, DateTime expiry) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'subscriptionTier': tier,
+        'subscriptionStatus': 'active',
+        'subscriptionExpiry': Timestamp.fromDate(expiry),
+      });
+    } catch (e) {
+      throw 'Failed to update subscription: $e';
+    }
+  }
+
   // Create user profile
   Future<void> createUserProfile(User user, {String? name}) async {
     try {
-      await _firestore.collection('users').doc(user.uid).set({
-        'uid': user.uid,
-        'email': user.email,
-        'displayName': name ?? user.displayName ?? 'User',
-        'photoURL': user.photoURL,
-        'createdAt': FieldValue.serverTimestamp(),
-        'itemsListed': 0,
-        'rentalsCount': 0,
-        'rating': 0.0,
-      }, SetOptions(merge: true));
+      final userModel = UserModel(
+        uid: user.uid,
+        email: user.email!,
+        displayName: name ?? user.displayName ?? 'User',
+        photoURL: user.photoURL,
+        createdAt: DateTime.now(),
+      );
+
+      await _firestore.collection('users').doc(user.uid).set(
+        userModel.toFirestore(), 
+        SetOptions(merge: true),
+      );
     } catch (e) {
       // Don't block sign up if profile creation fails due to permissions
       print('Warning: Failed to create user profile: $e');
     }
   }
 
-  // Get user profile
+  // Get user profile (Legacy Map support if needed, but prefer getUserModel)
   Future<Map<String, dynamic>?> getUserProfile(String userId) async {
     try {
       final doc = await _firestore.collection('users').doc(userId).get();

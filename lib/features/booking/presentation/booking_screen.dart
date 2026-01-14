@@ -50,19 +50,36 @@ class _BookingScreenState extends State<BookingScreen> {
       final endStr = DateFormat('dd MMM yyyy').format(_selectedDateRange!.end);
       final orderId = '#ORD-${const Uuid().v4().substring(0, 8).toUpperCase()}';
 
+      final now = DateTime.now();
+      
+      // Combine selected date with current time
+      final startDateTime = DateTime(
+        _selectedDateRange!.start.year,
+        _selectedDateRange!.start.month,
+        _selectedDateRange!.start.day,
+        now.hour,
+        now.minute,
+        now.second,
+      );
+      
+      final endDateTime = DateTime(
+        _selectedDateRange!.end.year,
+        _selectedDateRange!.end.month,
+        _selectedDateRange!.end.day,
+        now.hour,
+        now.minute,
+        now.second,
+      );
+
       final order = OrderModel(
         id: orderId,
-        itemName: widget.item.title,
         itemId: widget.item.id,
-        customerName: userName,
-        customerPhone: userPhone,
-        renterId: userId, // Changed from customerId
-        lenderId: widget.item.ownerId, // Added lenderId using item owner
-        status: 'Requested', // Important: Matches Admin App
-        startDate: startStr,
-        endDate: endStr,
-        totalAmount: _totalPrice.toStringAsFixed(0),
-        createdAt: DateTime.now(),
+        renterId: userId,
+        lenderId: widget.item.ownerId,
+        rentalStatus: 'requested', // lowercase as per schema image
+        startDate: startDateTime,
+        endDate: endDateTime,
+        createdAt: now,
       );
 
       /* Order creation moved to Payment Screen */

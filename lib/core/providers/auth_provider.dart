@@ -1,6 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'items_provider.dart'; // for firestoreServiceProvider
+import '../models/user_model.dart';
+
 
 // Firebase Auth instance
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
@@ -21,6 +24,15 @@ final currentUserProvider = Provider<User?>((ref) {
     loading: () => null,
     error: (_, __) => null,
   );
+});
+
+// Current user model stream (Real-time profile updates)
+final userModelProvider = StreamProvider<UserModel?>((ref) {
+  final currentUser = ref.watch(currentUserProvider);
+  if (currentUser == null) return Stream.value(null);
+  
+  final firestoreService = ref.watch(firestoreServiceProvider);
+  return firestoreService.getUserStream(currentUser.uid);
 });
 
 // Auth service provider

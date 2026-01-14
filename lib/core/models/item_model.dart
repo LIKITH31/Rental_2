@@ -18,6 +18,8 @@ class ItemModel {
   final DateTime createdAt;
   final String status; // available, rented, sold
   final Map<String, dynamic>? specifications;
+  final double? originalPrice; // NEW: Reference price
+  final String? dimensions;    // NEW: Dimensions string
 
   ItemModel({
     required this.id,
@@ -36,6 +38,8 @@ class ItemModel {
     required this.createdAt,
     required this.status,
     this.specifications,
+    this.originalPrice,
+    this.dimensions,
   });
 
   // Calculate distance from a given location (in kilometers)
@@ -62,6 +66,8 @@ class ItemModel {
       createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       status: data['status'] ?? 'available',
       specifications: data['specifications'],
+      originalPrice: data['originalPrice']?.toDouble(),
+      dimensions: data['dimensions'],
     );
   }
 
@@ -82,6 +88,8 @@ class ItemModel {
       'createdAt': Timestamp.fromDate(createdAt),
       'status': status,
       'specifications': specifications,
+      'originalPrice': originalPrice,
+      'dimensions': dimensions,
     };
   }
 }

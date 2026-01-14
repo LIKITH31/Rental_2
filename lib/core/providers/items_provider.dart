@@ -123,7 +123,7 @@ final sampleItemsProvider = Provider<List<ItemModel>>((ref) {
           salePrice: 45000,
           securityDeposit: 5000,
           images: [],
-          ownerId: 'user1',
+          ownerId: 'mock_uid_canon_owner_x8d9s',
           ownerName: 'John Doe',
           location: ItemLocation(
             latitude: baseLat + 0.01,
@@ -145,7 +145,7 @@ final sampleItemsProvider = Provider<List<ItemModel>>((ref) {
           rentalPricePerWeek: 5000,
           securityDeposit: 10000,
           images: [],
-          ownerId: 'user2',
+          ownerId: 'mock_uid_gamer_girl_p9k2m',
           ownerName: 'Jane Smith',
           location: ItemLocation(
             latitude: baseLat + 0.015,
@@ -168,7 +168,7 @@ final sampleItemsProvider = Provider<List<ItemModel>>((ref) {
           salePrice: 65000,
           securityDeposit: 15000,
           images: [],
-          ownerId: 'user3',
+          ownerId: 'mock_uid_drone_pilot_m2n4b',
           ownerName: 'Mike Johnson',
           location: ItemLocation(
             latitude: baseLat - 0.01,
@@ -191,7 +191,7 @@ final sampleItemsProvider = Provider<List<ItemModel>>((ref) {
           salePrice: 15000,
           securityDeposit: 2000,
           images: [],
-          ownerId: 'user4',
+          ownerId: 'mock_uid_biker_pro_h5j7k',
           ownerName: 'Sarah Wilson',
           location: ItemLocation(
             latitude: baseLat + 0.02,
@@ -213,7 +213,7 @@ final sampleItemsProvider = Provider<List<ItemModel>>((ref) {
           rentalPricePerWeek: 3500,
           securityDeposit: 8000,
           images: [],
-          ownerId: 'user5',
+          ownerId: 'mock_uid_cinema_lover_q1w2e',
           ownerName: 'David Brown',
           location: ItemLocation(
             latitude: baseLat - 0.005,

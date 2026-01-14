@@ -16,12 +16,20 @@ class MapScreen extends ConsumerStatefulWidget {
 
 class _MapScreenState extends ConsumerState<MapScreen> {
   GoogleMapController? _mapController;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
   
   // Default location (Delhi)
   static const CameraPosition _defaultPosition = CameraPosition(
     target: LatLng(28.6139, 77.2090), 
     zoom: 12,
   );
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +52,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         children: [
           allItemsAsync.when(
             data: (items) {
-              final markers = items.map((item) {
+              // Filter items
+              final filteredItems = items.where((item) {
+                return _searchQuery.isEmpty || 
+                    item.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                    item.description.toLowerCase().contains(_searchQuery.toLowerCase());
+              }).toList();
+
+              final markers = filteredItems.map((item) {
                 return Marker(
                   markerId: MarkerId(item.id),
                   position: LatLng(item.location.latitude, item.location.longitude),
@@ -98,12 +113,18 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: TextField(
+                      controller: _searchController,
                       decoration: InputDecoration(
-                        hintText: 'Search location...',
+                        hintText: 'Search location/items...',
                         prefixIcon: const Icon(Icons.search),
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.filter_list),
-                          onPressed: () {},
+                          icon: const Icon(Icons.close),
+                          onPressed: () {
+                            setState(() {
+                              _searchController.clear();
+                              _searchQuery = '';
+                            });
+                          },
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -111,6 +132,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           vertical: 15,
                         ),
                       ),
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
                     ),
                   ).animate().fadeIn().slideY(begin: -0.3),
                 ),
@@ -132,13 +158,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ],
                   ),
                   child: allItemsAsync.when(
-                    data: (items) => Column(
+                    data: (items) {
+                      final filteredItems = items.where((item) {
+                        return _searchQuery.isEmpty || 
+                            item.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+                            item.description.toLowerCase().contains(_searchQuery.toLowerCase());
+                      }).toList();
+                      
+                      return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            'Nearby Items (${items.length})',
+                            'Nearby Items (${filteredItems.length})',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -148,9 +181,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           child: ListView.builder(
                             scrollDirection: Axis.horizontal,
                             padding: const EdgeInsets.symmetric(horizontal: 16),
-                            itemCount: items.length,
+                            itemCount: filteredItems.length,
                             itemBuilder: (context, index) {
-                              final item = items[index];
+                              final item = filteredItems[index];
                               return GestureDetector(
                                 onTap: () {
                                   _mapController?.animateCamera(
@@ -165,7 +198,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                           ),
                         ),
                       ],
-                    ),
+                      );
+                    },
                     loading: () => const Center(child: CircularProgressIndicator()),
                     error: (_, __) => const SizedBox.shrink(),
                   ),

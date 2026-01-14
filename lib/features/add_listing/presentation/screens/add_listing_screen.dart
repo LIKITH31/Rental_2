@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/models/item_model.dart';
+import '../../../../core/models/user_model.dart';
 import '../../../../core/providers/auth_provider.dart';
 import '../../../../core/providers/items_provider.dart';
 
@@ -27,6 +28,8 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
   final _depositController = TextEditingController();
+  final _originalPriceController = TextEditingController(); // NEW
+  final _dimensionsController = TextEditingController();    // NEW
   
   String _selectedCategory = 'Electronics';
   String _selectedPeriod = 'Day';
@@ -55,12 +58,16 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
     _descriptionController.dispose();
     _priceController.dispose();
     _depositController.dispose();
+    _originalPriceController.dispose(); // NEW
+    _dimensionsController.dispose();    // NEW
     super.dispose();
   }
 
   Future<void> _submitListing() async {
     // Check if user is logged in
     final currentUser = ref.read(currentUserProvider);
+    final userModel = ref.read(userModelProvider).value;
+
     if (currentUser == null) {
       if (!mounted) return;
       showDialog(
@@ -77,9 +84,40 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
               onPressed: () {
                 Navigator.pop(context);
                 // Navigate to auth screen
-                // TODO: Implement navigation to auth screen
               },
               child: const Text('Login'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    // Check Subscription Limit (Only enforce for those WITHOUT unlimited listings)
+    if (userModel != null && !userModel.hasUnlimitedListings && userModel.itemsListed >= 5) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Limit Reached'),
+          content: const Text(
+            'You have reached the free limit of 5 listings. Upgrade to Lender Pro or Pro Max for unlimited listings!',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF781C2E), foregroundColor: Colors.white), 
+              onPressed: () {
+                Navigator.pop(context);
+                // Prompt user to upgrade
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Please go to Home > Subscribe to upgrade.')),
+                );
+              },
+              child: const Text('Upgrade Now'),
             ),
           ],
         ),
@@ -160,6 +198,12 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
         ),
         createdAt: DateTime.now(),
         status: 'available',
+        originalPrice: _originalPriceController.text.isNotEmpty 
+            ? double.tryParse(_originalPriceController.text) 
+            : null,
+        dimensions: _dimensionsController.text.isNotEmpty 
+            ? _dimensionsController.text.trim() 
+            : null,
       );
 
       // Save to Firestore
@@ -183,6 +227,8 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
       _descriptionController.clear();
       _priceController.clear();
       _depositController.clear();
+      _originalPriceController.clear(); // NEW
+      _dimensionsController.clear();    // NEW
       setState(() {
         _selectedCategory = 'Electronics';
         _selectedPeriod = 'Day';
@@ -414,6 +460,21 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
                         return null;
                       },
                     ).animate().fadeIn(delay: 400.ms).slideX(begin: -0.2),
+                    const SizedBox(height: 16),
+
+                    // Dimensions
+                    TextFormField(
+                      controller: _dimensionsController,
+                      decoration: InputDecoration(
+                        labelText: 'Dimensions / Specs',
+                        hintText: 'e.g., 15x10x5 inches, 2kg',
+                        prefixIcon: const Icon(Icons.straighten),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ).animate().fadeIn(delay: 450.ms).slideX(begin: -0.2),
+
                     const SizedBox(height: 24),
                     
                     // Pricing Section
@@ -442,6 +503,21 @@ class _AddListingScreenState extends ConsumerState<AddListingScreen> {
                     ).animate().fadeIn(delay: 600.ms).slideX(begin: -0.2),
                     const SizedBox(height: 16),
                     
+                    // Original Price (Reference)
+                    TextFormField(
+                      controller: _originalPriceController,
+                      decoration: InputDecoration(
+                        labelText: 'Original Purchase Price (MRP)',
+                        hintText: 'For reference only',
+                        prefixIcon: const Icon(Icons.price_check),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      keyboardType: TextInputType.number,
+                    ).animate().fadeIn(delay: 650.ms).slideX(begin: -0.2),
+                    const SizedBox(height: 16),
+
                     // Rental Price
                     Row(
                       children: [

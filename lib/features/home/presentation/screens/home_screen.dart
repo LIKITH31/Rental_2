@@ -11,6 +11,7 @@ import '../../../../core/services/location_service.dart';
 import '../../../booking/presentation/booking_screen.dart';
 import '../../../add_listing/presentation/screens/add_listing_screen.dart';
 import 'item_details_screen.dart';
+import 'subscription_screen.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -22,6 +23,9 @@ class HomeScreen extends ConsumerStatefulWidget {
 class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStateMixin {
   late PageController _pageController;
   double _currentPage = 0;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  bool _isSearching = false;
 
   @override
   void initState() {
@@ -37,6 +41,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
   @override
   void dispose() {
     _pageController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -50,9 +55,14 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
     final searchRadius = ref.watch(searchRadiusProvider);
 
     // Filter items
-    final sampleItems = _selectedCategory == null 
-        ? allItems 
-        : allItems.where((item) => item.category == _selectedCategory).toList();
+    // Filter items
+    final sampleItems = allItems.where((item) {
+      final matchesCategory = _selectedCategory == null || item.category == _selectedCategory;
+      final matchesSearch = _searchQuery.isEmpty || 
+          item.title.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+          item.description.toLowerCase().contains(_searchQuery.toLowerCase());
+      return matchesCategory && matchesSearch;
+    }).toList();
 
 
     return Scaffold(
@@ -60,28 +70,87 @@ class _HomeScreenState extends ConsumerState<HomeScreen> with TickerProviderStat
         slivers: [
           SliverAppBar.large(
             floating: true,
-            title: const Text('Discover'),
+            title: !_isSearching 
+                ? const Text('Discover') 
+                : TextField(
+                    controller: _searchController,
+                    autofocus: true,
+                    decoration: const InputDecoration(
+                      hintText: 'Search items...',
+                      border: InputBorder.none,
+                      hintStyle: TextStyle(color: Colors.white70),
+                    ),
+                    style: const TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      setState(() {
+                        _searchQuery = value;
+                      });
+                    },
+                  ),
             actions: [
               // Location indicator
-              currentLocationAsync.when(
-                data: (position) => Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Chip(
-                    avatar: const Icon(Icons.location_on, size: 16),
-                    label: Text('${searchRadius.toInt()} km'),
-                    onDeleted: () {
-                      _showRadiusDialog(context);
-                    },
-                    deleteIcon: const Icon(Icons.tune, size: 16),
-                  ),
-                ).animate().fadeIn(),
-                loading: () => const SizedBox.shrink(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
+              if (!_isSearching)
+                currentLocationAsync.when(
+                  data: (position) => Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: Chip(
+                      avatar: const Icon(Icons.location_on, size: 16),
+                      label: Text('${searchRadius.toInt()} km'),
+                      onDeleted: () {
+                        _showRadiusDialog(context);
+                      },
+                      deleteIcon: const Icon(Icons.tune, size: 16),
+                    ),
+                  ).animate().fadeIn(),
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, __) => const SizedBox.shrink(),
+                ),
               IconButton(
-                icon: const Icon(Icons.search),
-                onPressed: () {},
+                icon: Icon(_isSearching ? Icons.close : Icons.search),
+                onPressed: () {
+                  setState(() {
+                    if (_isSearching) {
+                      _isSearching = false;
+                      _searchQuery = '';
+                      _searchController.clear();
+                    } else {
+                      _isSearching = true;
+                    }
+                  });
+                },
               ).animate().fadeIn().scale(),
+              
+              // Premium Button
+              // Premium Button
+              Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SubscriptionScreen()),
+                    );
+                  },
+                  icon: const Icon(Icons.workspace_premium, color: Color(0xFFF9F6EE)), // Warm Cream
+                  label: const Text(
+                    'Subscribe',
+                    style: TextStyle(
+                      color: Color(0xFFF9F6EE), // Warm Cream
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF781C2E), // Burgundy
+                    foregroundColor: const Color(0xFFF9F6EE), // Warm Cream
+                    elevation: 2,
+                    shadowColor: const Color(0xFF8B2635).withValues(alpha: 0.5), // Lighter Burgundy Shadow
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
+                ),
+              ).animate().fadeIn().scale(delay: 200.ms),
             ],
           ),
           SliverToBoxAdapter(

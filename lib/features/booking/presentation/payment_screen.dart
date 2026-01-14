@@ -2,16 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../core/models/order_model.dart';
+import '../../../../core/models/user_model.dart';
 
-class PaymentScreen extends StatefulWidget {
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/providers/items_provider.dart';
+import '../../../../core/providers/auth_provider.dart';
+
+class PaymentScreen extends ConsumerStatefulWidget {
   final OrderModel order;
   const PaymentScreen({super.key, required this.order});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   bool _isProcessing = false;
   int _selectedMethod = 0;
 
@@ -48,69 +53,163 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Checkout')),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Order Summary
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text('Total Amount', style: TextStyle(color: Colors.black)),
-                      Text(
-                        '\$${widget.order.totalAmount}', 
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold, 
-                          fontSize: 18,
-                          color: Colors.black, // Make explicit dark color
-                        ),
-                      ),
-                    ],
+      body: FutureBuilder(
+        future: ref.read(firestoreServiceProvider).getItemById(widget.order.itemId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+             return const Center(child: CircularProgressIndicator());
+          }
+           
+          final item = snapshot.data;
+          final itemTitle = item?.title ?? 'Unknown Item';
+          final pricePerDay = item?.rentalPricePerDay ?? 0;
+          
+          final days = widget.order.endDate.difference(widget.order.startDate).inDays;
+          final totalAmount = (days > 0 ? days : 1) * pricePerDay;
+
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Order Summary
+                // Order Summary
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  const SizedBox(height: 8),
-                  Text(widget.order.itemName, style: const TextStyle(color: Colors.black54)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 32),
+                  child: Consumer(
+                    builder: (context, ref, _) {
+                      final userModel = ref.watch(userModelProvider).value;
+                      final hasReducedFees = userModel?.hasReducedFees ?? false;
+                      
+                      final subtotal = (days > 0 ? days : 1) * pricePerDay;
+                      final feeRate = hasReducedFees ? 0.05 : 0.10; // 5% for Premium, 10% for Basic
+                      final platformFee = subtotal * feeRate;
+                      final totalAmount = subtotal + platformFee;
 
-            const Text('Payment Method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-            const SizedBox(height: 16),
-            
-            _buildMethodTile(0, 'Credit / Debit Card', Icons.credit_card),
-            _buildMethodTile(1, 'UPI (Google Pay / PhonePe)', Icons.qr_code_scanner),
-            _buildMethodTile(2, 'Netbanking', Icons.account_balance),
-            _buildMethodTile(3, 'Wallets', Icons.account_balance_wallet),
-            _buildMethodTile(4, 'Cash on Delivery', Icons.money),
+                      return Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: const [
+                              Text('Rental Cost', style: TextStyle(color: Colors.black54)),
+                            ],
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(itemTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
+                              Text('\₹${subtotal.toStringAsFixed(0)}'),
+                            ],
+                          ),
+                          const Divider(height: 24),
+                          
+                          // Fee Section
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Text('Platform Fee', style: TextStyle(color: Colors.black54)),
+                                  if (hasReducedFees)
+                                    Container(
+                                      margin: const EdgeInsets.only(left: 8),
+                                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: Colors.amber.shade100,
+                                        borderRadius: BorderRadius.circular(4),
+                                        border: Border.all(color: Colors.amber),
+                                      ),
+                                      child: const Text('50% OFF', style: TextStyle(fontSize: 10, color: Colors.orange)),
+                                    ),
+                                ],
+                              ),
+                              Text(
+                                '\₹${platformFee.toStringAsFixed(0)}',
+                                style: TextStyle(
+                                  color: hasReducedFees ? Colors.green : Colors.black,
+                                  fontWeight: hasReducedFees ? FontWeight.bold : FontWeight.normal,
+                                ),
+                              ),
+                            ],
+                          ),
+                          if (!hasReducedFees)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4.0),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.info_outline, size: 14, color: Colors.blue),
+                                  const SizedBox(width: 4),
+                                  GestureDetector(
+                                    onTap: () {
+                                      // TODO: Navigate to subscription
+                                    },
+                                    child: const Text(
+                                      'Save with Premium',
+                                      style: TextStyle(color: Colors.blue, fontSize: 12, decoration: TextDecoration.underline),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
 
-            const SizedBox(height: 48),
+                          const Divider(height: 24),
 
-            SizedBox(
-              width: double.infinity,
-              height: 55,
-              child: ElevatedButton(
-                onPressed: _isProcessing ? null : _processPayment,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF781C2E),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          // Total
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text('Total Payable', style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+                              Text(
+                                '\₹${totalAmount.toStringAsFixed(0)}', 
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold, 
+                                  fontSize: 20,
+                                  color: Color(0xFF781C2E), 
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      );
+                    }
+                  ),
                 ),
-                child: _isProcessing 
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text('PAY & BOOK NOW', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              ),
+                const SizedBox(height: 32),
+
+                const Text('Payment Method', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                const SizedBox(height: 16),
+                
+                _buildMethodTile(0, 'Credit / Debit Card', Icons.credit_card),
+                _buildMethodTile(1, 'UPI (Google Pay / PhonePe)', Icons.qr_code_scanner),
+                _buildMethodTile(2, 'Netbanking', Icons.account_balance),
+                _buildMethodTile(3, 'Wallets', Icons.account_balance_wallet),
+                _buildMethodTile(4, 'Cash on Delivery', Icons.money),
+
+                const SizedBox(height: 48),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 55,
+                  child: ElevatedButton(
+                    onPressed: _isProcessing ? null : _processPayment,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF781C2E),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: _isProcessing 
+                      ? const CircularProgressIndicator(color: Colors.white)
+                      : const Text('PAY & BOOK NOW', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
+          );
+        }
       ),
     );
   }

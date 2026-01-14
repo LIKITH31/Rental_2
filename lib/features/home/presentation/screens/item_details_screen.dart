@@ -110,6 +110,15 @@ class ItemDetailsScreen extends StatelessWidget {
                   _buildDetailRow(context, 'Weekly Rate', item.rentalPricePerWeek != null ? '$currency${item.rentalPricePerWeek}' : '-'),
                   const SizedBox(height: 12),
                   _buildDetailRow(context, 'Monthly Rate', item.rentalPricePerMonth != null ? '$currency${item.rentalPricePerMonth}' : '-'),
+                  const SizedBox(height: 12),
+                  if (item.originalPrice != null) ...[
+                    _buildDetailRow(context, 'Original Price (MRP)', '$currency${item.originalPrice}'),
+                    const SizedBox(height: 12),
+                  ],
+                  if (item.dimensions != null) ...[
+                    _buildDetailRow(context, 'Dimensions / Specs', item.dimensions!),
+                    const SizedBox(height: 12),
+                  ],
                   const SizedBox(height: 24),
                   
                   const Divider(),
